@@ -201,11 +201,12 @@ namespace Utility
 			//
 		}
 
+		/* ////////////////////////////////////////////////////// */
 		/// <summary>
 		/// 親プロセスを取得する
 		/// </summary>
-		/// <param name="i_Process">プロセス</param>
-		/// <returns>Process 親プロセスオブジェクト</returns>
+		/// <param name="i_Process">子プロセスオブジェクト</param>
+		/// <returns>Process 親プロセスオブジェクト 見つからなかった場合はnull</returns>
 		public static System.Diagnostics.Process GetParentProcess( System.Diagnostics.Process i_Process )
 		{
 			System.Diagnostics.Process a_ResultProcess = null;
@@ -240,6 +241,7 @@ namespace Utility
 							}
 							catch( System.Exception )
 							{
+								// プロセスIDからプロセスオブジェクトの生成に失敗したらnullを返す
 								a_ResultProcess = null;
 							}
 							finally
@@ -259,6 +261,7 @@ namespace Utility
 			finally
 			{
 				CloseHandle( a_hSnapShot );
+				a_hSnapShot = System.IntPtr.Zero;
 			}
 			
 			// ※1つもヒットしなかった場合はnullを返す
@@ -269,7 +272,7 @@ namespace Utility
 		/// 子プロセス(複数)を取得する
 		/// </summary>
 		/// <param name="i_Process"></param>
-		/// <returns>Process[] 子プロセス(配列)</returns>
+		/// <returns>Process[] 子プロセスオブジェクト配列</returns>
 		public static System.Diagnostics.Process[] GetChileProcess( System.Diagnostics.Process i_Process )
 		{
 			System.IntPtr a_hSnapShot = System.IntPtr.Zero;
@@ -295,8 +298,11 @@ namespace Utility
 							{
 								a_ProcessArray.Add( System.Diagnostics.Process.GetProcessById( (int)a_Entry.th32ProcessID ) );
 							}
-							catch ( System.Exception )
+							catch ( System.Exception ex )
 							{
+								// 例外発生時はプロセス配列をクリアして外へ例外を投げる
+								a_ProcessArray.Clear();
+								throw ex;
 							}
 							finally
 							{
@@ -307,20 +313,23 @@ namespace Utility
 					/* ////////////////////////////////////////////////////// */
 				}
 			}
-			catch ( System.Exception )
+			catch ( System.Exception ex )
 			{
+				// 例外発生時は配列を開放して外へ例外を投げる
 				a_ProcessArray = null;
+				throw ex;
 			}
 			finally
 			{
 				CloseHandle( a_hSnapShot );
+				a_hSnapShot = System.IntPtr.Zero;
 			}
 
 			return (System.Diagnostics.Process[])a_ProcessArray.ToArray( typeof( System.Diagnostics.Process ) );
 		}
 
 		/// <summary>
-		/// プロセスのコマンドラインを取得する
+		/// 他プロセスのコマンドライン文字列を取得する
 		/// </summary>
 		/// <param name="i_Process">プロセスオブジェクト</param>
 		/// <returns>String コマンドライン文字列</returns>
@@ -379,6 +388,7 @@ namespace Utility
 				a_Buffer = System.IntPtr.Zero;
 
 				// CommandLine Option文字列 取得
+				// コマンドライン文字列はUnicode形式で格納されている？
 				if ( 0 < upp.CommandLine.Length )
 				{
 					a_Buffer = Marshal.AllocHGlobal( upp.CommandLine.Length );
@@ -396,15 +406,16 @@ namespace Utility
 			}
 			catch ( System.Exception )
 			{
+				// 例外発生時は空白文字を返す
+				a_CommandLine = "";
+			}
+			finally
+			{
 				if ( a_Buffer != System.IntPtr.Zero )
 				{
 					Marshal.FreeHGlobal( a_Buffer );
 				}
 				a_Buffer = System.IntPtr.Zero;
-				a_CommandLine = "";
-			}
-			finally
-			{
 			}
 
 			return a_CommandLine;
