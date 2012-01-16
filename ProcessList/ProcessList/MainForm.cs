@@ -47,9 +47,6 @@ namespace ProcessList
 		private System.Windows.Forms.StatusBar statusBarProcessList;
 
 		/* ------------------------------------------------------ */
-//		private System.Drawing.Rectangle TextBoxProcessNameMargin;
-//		private System.Drawing.Rectangle ListViewProcessMargin;
-//		private System.Drawing.Rectangle KillProcessButtonMargin;
 
 		private OperationMode enOperationMode;
 
