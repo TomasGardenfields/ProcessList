@@ -410,6 +410,13 @@ namespace Utility
 			//
 		}
 
+		/* ////////////////////////////////////////////////////// */
+		// DWORD/WORD/BYTEââéZä÷êî
+		public static System.UInt32 MAKEDWORD( System.UInt16 wParam, System.UInt16 lParam )
+		{
+			return (System.UInt32)( wParam << 16 + lParam );
+		}
+
 		public static System.UInt16 LOWORD( System.UInt32 dwParam )
 		{
 			return (System.UInt16)( dwParam & 0xFFFF );
@@ -420,7 +427,20 @@ namespace Utility
 			return (System.UInt16)( ( dwParam >> 16 ) & 0xFFFF );
 		}
 
-	
+		public static System.UInt16 MAKEWORD( System.Byte wParam, System.Byte lParam )
+		{
+			return (System.UInt16)( wParam << 8 + lParam );
+		}
+
+		public static System.Byte LOBYTE( System.UInt16 wParam )
+		{
+			return (System.Byte)( wParam & 0xFF );
+		}
+
+		public static System.Byte HIBYTE( System.UInt16 wParam )
+		{
+			return (System.Byte)( ( wParam >> 8 ) & 0xFF );
+		}
 
 	}
 }
